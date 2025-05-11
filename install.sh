@@ -10,9 +10,9 @@ NC='\033[0m' # No Color
 # 1. ОБНОВЛЕНИЕ СИСТЕМЫ
 # =====================
 echo -e "${YELLOW}🔹 Обновляем систему...${NC}"
-sudo apt-get update
-sudo apt-get upgrade -y
-sudo apt-get install -y apt-transport-https ca-certificates software-properties-common curl wget
+apt-get update
+apt-get upgrade -y
+apt-get install -y apt-transport-https ca-certificates software-properties-common curl wget
 
 # ==============
 # 2. УСТАНОВКА DOCKER
@@ -20,7 +20,7 @@ sudo apt-get install -y apt-transport-https ca-certificates software-properties-
 echo -e "${YELLOW}🔹 Устанавливаем Docker и Docker Compose...${NC}"
 
 # Удаляем старые версии
-sudo apt-get remove -y docker docker-engine docker.io containerd runc
+apt-get remove -y docker docker-engine docker.io containerd runc
 
 # Установка Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -28,23 +28,22 @@ sh get-docker.sh
 rm get-docker.sh
 
 # Docker Compose v2
-sudo mkdir -p /usr/libexec/docker/cli-plugins
-sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
-sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+mkdir -p /usr/libexec/docker/cli-plugins
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
+chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
-# Настройка прав
-sudo usermod -aG docker $USER
-sudo chmod 666 /var/run/docker.sock
-sudo systemctl enable docker
-sudo systemctl start docker
+# Настройка Docker
+chmod 666 /var/run/docker.sock
+systemctl enable docker
+systemctl start docker
 
 # ========================
 # 3. ПОЛЕЗНЫЕ ИНСТРУМЕНТЫ
 # ========================
 echo -e "${YELLOW}🔹 Устанавливаем утилиты...${NC}"
 
-# Базовые
-sudo apt-get install -y \
+# Базовые пакеты
+apt-get install -y \
     htop \
     screen \
     tmux \
@@ -71,35 +70,20 @@ sudo apt-get install -y \
 echo -e "${YELLOW}🔹 Оптимизируем систему...${NC}"
 
 # Увеличиваем лимиты для Docker
-sudo sysctl -w vm.max_map_count=262144
-echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+sysctl -w vm.max_map_count=262144
+echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
 # Настройка файрвола
-sudo ufw allow 22
-sudo ufw allow 80
-sudo ufw allow 443
-sudo ufw --force enable
-
-# =================
-# 5. ДОПОЛНИТЕЛЬНО
-# =================
-echo -e "${YELLOW}🔹 Дополнительные настройки...${NC}"
-
-# Установка zsh (опционально)
-sudo apt-get install -y zsh
-if [ -f "$HOME/.zshrc" ]; then
-  echo -e "${GREEN}Zsh уже настроен.${NC}"
-else
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-  chsh -s $(which zsh)
-fi
+ufw allow 22
+ufw allow 80
+ufw allow 443
+ufw --force enable
 
 # =============
 # ЗАВЕРШЕНИЕ
 # =============
 echo -e "${GREEN}
 ✅ Готово! Система настроена.
-➜ Перезайдите в систему для применения изменений прав Docker.
 ➜ Проверьте версии:
   docker --version
   docker compose version
