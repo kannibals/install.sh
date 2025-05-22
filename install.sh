@@ -75,8 +75,6 @@ echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
 # Настройка файрвола
 ufw allow 22
-ufw allow 80
-ufw allow 443
 ufw --force enable
 
 # =============
