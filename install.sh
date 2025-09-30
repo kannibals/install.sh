@@ -25,7 +25,7 @@ apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || 
 
 # Официальная установка Docker
 
-curl -fsSL [https://get.docker.com](https://get.docker.com) | sh
+curl -fsSL https://get.docker.com | sh
 
 # Включаем автозапуск
 
