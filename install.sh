@@ -8,7 +8,6 @@ NC='\033[0m'
 
 echo -e "${YELLOW}🔹 Обновляем систему...${NC}"
 apt-get update && apt-get upgrade -y
-apt-get install -y apt-transport-https ca-certificates curl wget gnupg lsb-release software-properties-common
 
 # ======================
 # УСТАНОВКА DOCKER CE И DOCKER COMPOSE V2
