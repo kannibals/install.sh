@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Цвета
+Цвета
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -11,32 +11,28 @@ echo -e "${YELLOW}🔹 Обновляем систему...${NC}"
 apt-get update && apt-get upgrade -y
 apt-get install -y apt-transport-https ca-certificates curl wget gnupg lsb-release software-properties-common
 
-# ======================
-
-# УСТАНОВКА DOCKER
-
-# ======================
+======================
+УСТАНОВКА DOCKER
+======================
 
 echo -e "${YELLOW}🔹 Устанавливаем Docker...${NC}"
 
-# Удаляем старые версии
+Удаляем старые версии
 
 apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
 
-# Официальная установка Docker
+Официальная установка Docker (без Markdown!)
 
-curl -fsSL [https://get.docker.com](https://get.docker.com) | sh
+curl -fsSL https://get.docker.com | sh
 
-# Включаем автозапуск
+Включаем автозапуск
 
 systemctl enable docker
 systemctl start docker
 
-# ======================
-
-# УСТАНОВКА DOCKER COMPOSE PLUGIN
-
-# ======================
+======================
+УСТАНОВКА DOCKER COMPOSE PLUGIN
+======================
 
 echo -e "${YELLOW}🔹 Устанавливаем Docker Compose plugin...${NC}"
 
@@ -44,59 +40,49 @@ ARCH=$(uname -m)
 PLUGIN_DIR=/usr/libexec/docker/cli-plugins
 mkdir -p "$PLUGIN_DIR"
 
-case "$ARCH" in
-x86_64)
-curl -SL [https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64](https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64) -o "$PLUGIN_DIR/docker-compose"
-;;
-aarch64|arm64)
-curl -SL [https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64](https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64) -o "$PLUGIN_DIR/docker-compose"
-;;
-*)
+if [ "$ARCH" = "x86_64" ]; then
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o "$PLUGIN_DIR/docker-compose"
+elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 -o "$PLUGIN_DIR/docker-compose"
+else
 echo -e "${RED}⚠️ Неизвестная архитектура: $ARCH. Установите Docker Compose вручную.${NC}"
-;;
-esac
+fi
 
 chmod +x "$PLUGIN_DIR/docker-compose"
 
-# ======================
-
-# УТИЛИТЫ
-
-# ======================
+======================
+УТИЛИТЫ
+======================
 
 echo -e "${YELLOW}🔹 Устанавливаем утилиты...${NC}"
-apt-get install -y 
-htop screen tmux ncdu nnn git tree jq 
-zip unzip net-tools iputils-ping traceroute 
+apt-get install -y
+htop screen tmux ncdu nnn git tree jq
+zip unzip net-tools iputils-ping traceroute
 nano vim fail2ban ufw
 
-# ======================
-
-# ОПТИМИЗАЦИЯ
-
-# ======================
+======================
+ОПТИМИЗАЦИЯ
+======================
 
 echo -e "${YELLOW}🔹 Оптимизируем систему...${NC}"
 
-# Для Docker/Elastic
+Для Docker/Elastic
 
 sysctl -w vm.max_map_count=262144
 grep -q "vm.max_map_count" /etc/sysctl.conf || echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
-# Настройка UFW
+Настройка UFW
 
 ufw allow 22/tcp
 ufw --force enable
 
-# Чистим dead screen-сессии
+Чистим dead screen-сессии
 
 screen -wipe >/dev/null 2>&1
 
-# ======================
-
-# ФИНАЛ
-
-# ======================
+======================
+ФИНАЛ
+======================
 
 echo -e "${GREEN}
 ✅ Готово! Система настроена.
