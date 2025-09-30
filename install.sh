@@ -11,20 +11,45 @@ apt-get update && apt-get upgrade -y
 apt-get install -y apt-transport-https ca-certificates curl wget gnupg lsb-release software-properties-common
 
 # ======================
-# УСТАНОВКА DOCKER
+# УСТАНОВКА DOCKER CE И DOCKER COMPOSE V2
 # ======================
-echo -e "${YELLOW}🔹 Устанавливаем Docker...${NC}"
-apt-get install -y docker.io
-systemctl enable docker
-systemctl start docker
+echo -e "${YELLOW}🔹 Устанавливаем Docker CE и Docker Compose v2...${NC}"
 
-# ======================
-# УСТАНОВКА DOCKER COMPOSE PLUGIN
-# ======================
-echo -e "${YELLOW}🔹 Устанавливаем Docker Compose plugin...${NC}"
-mkdir -p /usr/libexec/docker/cli-plugins
-curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
-chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+# Установка зависимостей
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common
+
+# Добавляем ключ Docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# Добавляем репозиторий Docker
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Установка Docker CE
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Добавляем текущего пользователя в группу docker
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Включаем и запускаем Docker
+sudo systemctl enable docker
+sudo systemctl start docker
+
+# Установка Docker Compose v2
+ARCH=$(uname -m)
+PLUGIN_DIR=/usr/libexec/docker/cli-plugins
+sudo mkdir -p "$PLUGIN_DIR"
+
+if [ "$ARCH" = "x86_64" ]; then
+    sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o "$PLUGIN_DIR/docker-compose"
+elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+    sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 -o "$PLUGIN_DIR/docker-compose"
+else
+    echo -e "${RED}⚠️ Архитектура $ARCH не поддерживается, установите Compose вручную.${NC}"
+fi
+
+sudo chmod +x "$PLUGIN_DIR/docker-compose"
 
 # ======================
 # УТИЛИТЫ
@@ -48,12 +73,7 @@ ufw --force enable
 # Чистим dead screen-сессии
 screen -wipe >/dev/null 2>&1
 
-# ======================
-# ФИНАЛ
-# ======================
-echo -e "${GREEN}
-✅ Готово! Система настроена.
-Проверка версий:
+# Проверка версий
+echo -e "${GREEN}✅ Docker и Docker Compose v2 установлены.${NC}"
 docker --version
 docker compose version
-${NC}"
