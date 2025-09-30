@@ -1,6 +1,6 @@
 #!/bin/bash
 
-Цвета
+Цвета для вывода
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -17,15 +17,11 @@ apt-get install -y apt-transport-https ca-certificates curl wget gnupg lsb-relea
 
 echo -e "${YELLOW}🔹 Устанавливаем Docker...${NC}"
 
-Удаляем старые версии
-
 apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
 
-Официальная установка Docker (без Markdown!)
+Скачивание и установка Docker
 
 curl -fsSL https://get.docker.com | sh
-
-Включаем автозапуск
 
 systemctl enable docker
 systemctl start docker
@@ -45,7 +41,7 @@ curl -SL https://github.com/docker/compose/releases/latest/download/docker-compo
 elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
 curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 -o "$PLUGIN_DIR/docker-compose"
 else
-echo -e "${RED}⚠️ Неизвестная архитектура: $ARCH. Установите Docker Compose вручную.${NC}"
+echo -e "${RED}⚠️ Архитектура $ARCH не поддерживается, установите Compose вручную.${NC}"
 fi
 
 chmod +x "$PLUGIN_DIR/docker-compose"
@@ -66,12 +62,8 @@ nano vim fail2ban ufw
 
 echo -e "${YELLOW}🔹 Оптимизируем систему...${NC}"
 
-Для Docker/Elastic
-
 sysctl -w vm.max_map_count=262144
 grep -q "vm.max_map_count" /etc/sysctl.conf || echo "vm.max_map_count=262144" >> /etc/sysctl.conf
-
-Настройка UFW
 
 ufw allow 22/tcp
 ufw --force enable
