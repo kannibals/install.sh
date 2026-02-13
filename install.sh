@@ -8,6 +8,7 @@ NC='\033[0m'
 
 echo -e "${YELLOW}🔹 Обновляем систему...${NC}"
 apt-get update && apt-get upgrade -y
+apt-get autoremove -y
 
 # ======================
 # УСТАНОВКА DOCKER CE И DOCKER COMPOSE V2
@@ -15,7 +16,7 @@ apt-get update && apt-get upgrade -y
 echo -e "${YELLOW}🔹 Устанавливаем Docker CE и Docker Compose v2...${NC}"
 
 # Установка зависимостей
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common
+apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release software-properties-common
 
 # Добавляем ключ Docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -24,31 +25,31 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 # Установка Docker CE
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+apt-get update
+apt-get install -y docker-ce docker-ce-cli containerd.io
 
 # Добавляем текущего пользователя в группу docker
-sudo usermod -aG docker $USER
+usermod -aG docker $USER
 newgrp docker
 
 # Включаем и запускаем Docker
-sudo systemctl enable docker
-sudo systemctl start docker
+systemctl enable docker
+systemctl start docker
 
 # Установка Docker Compose v2
 ARCH=$(uname -m)
 PLUGIN_DIR=/usr/libexec/docker/cli-plugins
-sudo mkdir -p "$PLUGIN_DIR"
+mkdir -p "$PLUGIN_DIR"
 
 if [ "$ARCH" = "x86_64" ]; then
-    sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o "$PLUGIN_DIR/docker-compose"
+    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o "$PLUGIN_DIR/docker-compose"
 elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-    sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 -o "$PLUGIN_DIR/docker-compose"
+    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 -o "$PLUGIN_DIR/docker-compose"
 else
     echo -e "${RED}⚠️ Архитектура $ARCH не поддерживается, установите Compose вручную.${NC}"
 fi
 
-sudo chmod +x "$PLUGIN_DIR/docker-compose"
+chmod +x "$PLUGIN_DIR/docker-compose"
 
 # ======================
 # УТИЛИТЫ
@@ -63,6 +64,8 @@ nano vim fail2ban ufw lxterminal
 # ОПТИМИЗАЦИЯ
 # ======================
 echo -e "${YELLOW}🔹 Оптимизируем систему...${NC}"
+
+# Настройка vm.max_map_count
 sysctl -w vm.max_map_count=262144
 grep -q "vm.max_map_count" /etc/sysctl.conf || echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
