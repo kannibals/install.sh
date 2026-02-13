@@ -57,7 +57,7 @@ echo -e "${YELLOW}🔹 Устанавливаем утилиты...${NC}"
 apt-get install -y \
 htop screen tmux ncdu nnn git tree jq \
 zip unzip net-tools iputils-ping traceroute \
-nano vim fail2ban ufw
+nano vim fail2ban ufw lxterminal
 
 # ======================
 # ОПТИМИЗАЦИЯ
