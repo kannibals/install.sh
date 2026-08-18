@@ -101,17 +101,13 @@ fi
 # ======================
 echo -e "${YELLOW}🔹 Устанавливаем утилиты...${NC}"
 need_sudo apt-get install -y \
-htop screen tmux ncdu nnn git tree jq \
+htop screen ncdu git tree jq \
 zip unzip net-tools iputils-ping traceroute \
-nano vim fail2ban ufw lxterminal
+nano fail2ban ufw lxterminal
 
 echo -e "${YELLOW}🔹 Оптимизируем систему...${NC}"
 need_sudo sysctl -w vm.max_map_count=262144
 grep -q "vm.max_map_count" /etc/sysctl.conf || echo "vm.max_map_count=262144" | need_sudo tee -a /etc/sysctl.conf >/dev/null
-
-# Настройка файрвола
-need_sudo ufw allow 22/tcp
-need_sudo ufw --force enable
 
 # Чистим dead screen-сессии
 screen -wipe >/dev/null 2>&1 || true
