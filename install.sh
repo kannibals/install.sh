@@ -46,7 +46,6 @@ EOF
 need_sudo tee /scripts/clean > /dev/null << 'EOF'
 #!/bin/bash
 apt autoremove --purge -y && apt autoclean && apt clean
-apt-get purge $(dpkg -l 'linux-image-*' | awk '/^ii/{print $2}' | grep -v $(uname -r) | head -n -1) -y
 update-grub
 journalctl --disk-usage
 journalctl --vacuum-time=3d
@@ -61,10 +60,10 @@ EOF
 
 need_sudo chmod +x /scripts/update /scripts/clean /scripts/speed
 
-# Добавляем алиасы
-grep -q "alias update=" ~/.bashrc || sed -i '/# some more ls aliases/a alias update="/scripts/update"' ~/.bashrc
-grep -q "alias clean=" ~/.bashrc || sed -i '/# some more ls aliases/a alias clean="/scripts/clean"' ~/.bashrc
-grep -q "alias speed=" ~/.bashrc || sed -i '/# some more ls aliases/a alias speed="/scripts/speed"' ~/.bashrc
+# Добавляем алиасы в конец ~/.bashrc безопасно
+grep -q "alias update=" ~/.bashrc || echo 'alias update="/scripts/update"' >> ~/.bashrc
+grep -q "alias clean=" ~/.bashrc || echo 'alias clean="/scripts/clean"' >> ~/.bashrc
+grep -q "alias speed=" ~/.bashrc || echo 'alias speed="/scripts/speed"' >> ~/.bashrc
 
 # ======================
 # УСТАНОВКА DOCKER И COMPOSE
@@ -72,9 +71,9 @@ grep -q "alias speed=" ~/.bashrc || sed -i '/# some more ls aliases/a alias spee
 echo -e "${YELLOW}🔹 Настраиваем репозиторий Docker...${NC}"
 need_sudo install -m 0755 -d /etc/apt/keyrings
 
+# Исправлено: корректное скачивание ключа без привязки к сложным пайпам внутри need_sudo
 if [[ ! -f /etc/apt/keyrings/docker.gpg ]]; then
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-    | need_sudo gpg --batch --yes --dearmor -o /etc/apt/keyrings/docker.gpg
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   need_sudo chmod a+r /etc/apt/keyrings/docker.gpg
 fi
 
